@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
-import { ArrowLeftRight } from "lucide-react";
+import { ArrowLeftRight, Send } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { AccountCard } from "@/components/AccountCard";
 import { TransferDialog } from "@/components/TransferDialog";
+import { ExternalTransferDialog } from "@/components/ExternalTransferDialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { BottomNav } from "@/components/BottomNav";
@@ -19,6 +20,7 @@ interface Account {
 const Transfer = () => {
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [isTransferDialogOpen, setIsTransferDialogOpen] = useState(false);
+  const [isExternalTransferDialogOpen, setIsExternalTransferDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
@@ -141,33 +143,63 @@ const Transfer = () => {
           </Card>
         )}
 
-        {/* Transfer Button */}
-        {accounts.length >= 2 && (
-          <div className="fixed bottom-24 right-6">
+        {/* Transfer Buttons */}
+        {accounts.length >= 1 && (
+          <div className="fixed bottom-24 right-6 space-y-3">
+            {/* External Transfer Button */}
             <Button
-              onClick={() => setIsTransferDialogOpen(true)}
+              onClick={() => setIsExternalTransferDialogOpen(true)}
               size="lg"
-              className="rounded-full shadow-lg"
+              variant="secondary"
+              className="rounded-full shadow-lg w-full"
             >
-              <ArrowLeftRight className="w-5 h-5 mr-2" />
-              Transfer
+              <Send className="w-5 h-5 mr-2" />
+              External Transfer
             </Button>
+            
+            {/* Internal Transfer Button - only show if 2+ accounts */}
+            {accounts.length >= 2 && (
+              <Button
+                onClick={() => setIsTransferDialogOpen(true)}
+                size="lg"
+                className="rounded-full shadow-lg w-full"
+              >
+                <ArrowLeftRight className="w-5 h-5 mr-2" />
+                Between Accounts
+              </Button>
+            )}
           </div>
         )}
 
-        {accounts.length < 2 && (
+        {accounts.length < 1 && (
           <div className="text-center py-8">
             <p className="text-muted-foreground">
-              You need at least 2 accounts to make transfers
+              You need at least one account to make transfers
             </p>
           </div>
         )}
 
-        {/* Transfer Dialog */}
+        {accounts.length === 1 && (
+          <div className="text-center py-8">
+            <p className="text-muted-foreground">
+              Add another account to enable transfers between accounts
+            </p>
+          </div>
+        )}
+
+        {/* Internal Transfer Dialog */}
         <TransferDialog
           accounts={accounts}
           isOpen={isTransferDialogOpen}
           onOpenChange={setIsTransferDialogOpen}
+          onTransferSuccess={handleTransferSuccess}
+        />
+
+        {/* External Transfer Dialog */}
+        <ExternalTransferDialog
+          accounts={accounts}
+          isOpen={isExternalTransferDialogOpen}
+          onOpenChange={setIsExternalTransferDialogOpen}
           onTransferSuccess={handleTransferSuccess}
         />
       </div>
