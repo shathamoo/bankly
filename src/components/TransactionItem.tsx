@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 
 interface Transaction {
-  id: number;
+  id: string | number;
   merchant: string;
   date: string;
   amount: number;

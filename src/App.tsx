@@ -7,6 +7,7 @@ import CreateAccount from "./pages/CreateAccount";
 import Dashboard from "./pages/Dashboard";
 import Cards from "./pages/Cards";
 import Transactions from "./pages/Transactions";
+import Transfer from "./pages/Transfer";
 import Insights from "./pages/Insights";
 import NotFound from "./pages/NotFound";
 
@@ -23,6 +24,7 @@ const App = () => (
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/cards" element={<Cards />} />
         <Route path="/transactions" element={<Transactions />} />
+        <Route path="/transfer" element={<Transfer />} />
         <Route path="/insights" element={<Insights />} />
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />

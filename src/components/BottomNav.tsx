@@ -3,7 +3,7 @@ import { CreditCard, BarChart3, Receipt, Wallet } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface BottomNavProps {
-  activeTab: "accounts" | "cards" | "transactions" | "insights";
+  activeTab: "accounts" | "cards" | "transactions" | "transfer" | "insights";
 }
 
 export const BottomNav = ({ activeTab }: BottomNavProps) => {
@@ -18,22 +18,16 @@ export const BottomNav = ({ activeTab }: BottomNavProps) => {
       path: "/dashboard",
     },
     {
-      id: "cards",
-      label: "Cards",
-      icon: CreditCard,
-      path: "/cards",
-    },
-    {
       id: "transactions", 
       label: "Transactions",
       icon: Receipt,
       path: "/transactions",
     },
     {
-      id: "insights",
-      label: "Insights", 
-      icon: BarChart3,
-      path: "/insights",
+      id: "transfer",
+      label: "Transfer",
+      icon: CreditCard,
+      path: "/transfer",
     },
   ];
 
