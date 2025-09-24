@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { BottomNav } from "@/components/BottomNav";
 import { TransactionItem } from "@/components/TransactionItem";
 import { BankFilterChips } from "@/components/BankFilterChips";
+import { EmptyState } from "@/components/EmptyState";
 
 const Transactions = () => {
   const [selectedFilter, setSelectedFilter] = useState("All");
@@ -18,6 +19,7 @@ const Transactions = () => {
       currency: "JOD",
       category: "Food & Coffee",
       categoryColor: "bg-orange-500",
+      bank: "Arab Bank",
     },
     {
       id: 2,
@@ -27,6 +29,7 @@ const Transactions = () => {
       currency: "JOD",
       category: "Bills",
       categoryColor: "bg-blue-500",
+      bank: "Etihad",
     },
     {
       id: 3,
@@ -36,6 +39,7 @@ const Transactions = () => {
       currency: "JOD", 
       category: "Salary",
       categoryColor: "bg-green-500",
+      bank: "Arab Bank",
     },
     {
       id: 4,
@@ -45,6 +49,7 @@ const Transactions = () => {
       currency: "JOD",
       category: "Shopping",
       categoryColor: "bg-purple-500",
+      bank: "Safwa",
     },
     {
       id: 5,
@@ -54,6 +59,7 @@ const Transactions = () => {
       currency: "JOD",
       category: "Transport",
       categoryColor: "bg-red-500",
+      bank: "Etihad",
     },
     {
       id: 6,
@@ -63,8 +69,14 @@ const Transactions = () => {
       currency: "JOD",
       category: "Bills", 
       categoryColor: "bg-blue-500",
+      bank: "Arab Bank",
     },
   ];
+
+  // Filter transactions based on selected filter
+  const filteredTransactions = selectedFilter === "All" 
+    ? transactions 
+    : transactions.filter(t => t.bank === selectedFilter);
 
   return (
     <div className="min-h-screen bg-secondary/30">
@@ -82,10 +94,18 @@ const Transactions = () => {
       </div>
 
       {/* Transactions List */}
-      <div className="px-6 pb-24 space-y-2">
-        {transactions.map((transaction) => (
-          <TransactionItem key={transaction.id} transaction={transaction} />
-        ))}
+      <div className="px-6 pb-24">
+        {filteredTransactions.length > 0 ? (
+          <div className="space-y-2">
+            {filteredTransactions.map((transaction) => (
+              <TransactionItem key={transaction.id} transaction={transaction} />
+            ))}
+          </div>
+        ) : (
+          <EmptyState 
+            message={`No transactions found for ${selectedFilter === "All" ? "any bank" : selectedFilter}. Try selecting a different filter or check back later.`}
+          />
+        )}
       </div>
 
       <BottomNav activeTab="transactions" />
