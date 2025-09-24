@@ -1,21 +1,80 @@
+import { useState, useEffect } from "react";
 import { BottomNav } from "@/components/BottomNav";
 import { InsightCard } from "@/components/InsightCard";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
+import { supabase } from "@/integrations/supabase/client";
 
 const Insights = () => {
-  const monthlyInsight = "You spent 15% less this month compared to last month. Your top spending category was Food & Coffee.";
+  const [transferData, setTransferData] = useState({ amount: 0, count: 0, percentage: 0 });
+  const [totalSpending, setTotalSpending] = useState(0);
+
+  // Fetch transfer data for current month
+  const fetchTransferData = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        return;
+      }
+
+      // Get current month's start and end dates
+      const now = new Date();
+      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+      const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+
+      const { data, error } = await supabase
+        .from("transactions")
+        .select("amount")
+        .eq("user_id", user.id)
+        .gte("created_at", startOfMonth.toISOString())
+        .lte("created_at", endOfMonth.toISOString());
+
+      if (error) {
+        console.error("Error fetching transfer data:", error);
+        return;
+      }
+
+      const transfers = data || [];
+      const transferAmount = transfers.reduce((sum, t) => sum + parseFloat(t.amount.toString()), 0);
+      const transferCount = transfers.length;
+
+      // Calculate percentage of total spending (using static data as baseline)
+      const staticSpending = 376.8; // Sum of static transactions
+      const total = staticSpending + transferAmount;
+      const percentage = total > 0 ? (transferAmount / total) * 100 : 0;
+
+      setTransferData({
+        amount: transferAmount,
+        count: transferCount,
+        percentage: Math.round(percentage)
+      });
+      setTotalSpending(total);
+    } catch (error) {
+      console.error("Error in fetchTransferData:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchTransferData();
+  }, []);
+
+  const monthlyInsight = transferData.count > 0 
+    ? `You spent 15% less this month compared to last month. Your top spending category was Food & Coffee. You made ${transferData.count} transfer${transferData.count > 1 ? 's' : ''} between your accounts totaling ${transferData.amount.toFixed(2)} JOD.`
+    : "You spent 15% less this month compared to last month. Your top spending category was Food & Coffee.";
 
   const topCategories = [
     { category: "Food & Coffee", amount: 125.30, color: "#f97316" },
     { category: "Bills", amount: 98.50, color: "#3b82f6" },
     { category: "Shopping", amount: 87.20, color: "#8b5cf6" },
     { category: "Transport", amount: 65.80, color: "#ef4444" },
+    ...(transferData.amount > 0 ? [{ category: "Transfers", amount: transferData.amount, color: "#10b981" }] : [])
   ];
 
   const tips = [
     "Set up automatic savings of 200 JOD monthly to reach your goals faster.",
     "Consider switching to a cashback credit card for your regular purchases.",
     "Your coffee spending increased by 20% - try brewing at home twice a week.",
+    ...(transferData.percentage > 20 ? [`${transferData.percentage}% of your financial activity this month were transfers between your accounts. Great job managing your money!`] : [])
   ];
 
   const chartData = topCategories.map(cat => ({
