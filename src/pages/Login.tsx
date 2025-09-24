@@ -1,34 +1,95 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
 import banklyIcon from "@/assets/bankly-icon.png";
+
+// Validation schema
+const loginSchema = z.object({
+  email: z
+    .string()
+    .trim()
+    .email({ message: "Invalid email address" })
+    .max(255, { message: "Email must be less than 255 characters" }),
+  password: z
+    .string()
+    .min(1, { message: "Password cannot be empty" })
+    .max(128, { message: "Password must be less than 128 characters" }),
+});
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const { toast } = useToast();
 
-  const handleSignIn = () => {
-    navigate("/dashboard");
+  const handleSignIn = async () => {
+    try {
+      setIsLoading(true);
+      setErrors({});
+
+      // Validate input
+      const validation = loginSchema.safeParse({ email, password });
+      
+      if (!validation.success) {
+        const fieldErrors: Record<string, string> = {};
+        validation.error.errors.forEach((error) => {
+          if (error.path[0]) {
+            fieldErrors[error.path[0].toString()] = error.message;
+          }
+        });
+        setErrors(fieldErrors);
+        return;
+      }
+
+      // TODO: Implement actual sign in logic here
+      // For now, just navigate to dashboard
+      toast({
+        title: "Sign in successful",
+        description: "Welcome to Bankly!",
+      });
+      
+      navigate("/dashboard");
+    } catch (error) {
+      toast({
+        title: "Sign in failed",
+        description: "Please check your credentials and try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleCreateAccount = () => {
+    navigate("/create-account");
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6">
-      <div className="w-full max-w-sm space-y-8">
-        {/* Logo */}
-        <div className="text-center">
-          <img 
-            src={banklyIcon} 
-            alt="Bankly" 
-            className="w-20 h-20 mx-auto mb-4 rounded-2xl shadow-lg"
-          />
-          <h1 className="text-3xl font-bold text-primary">Bankly</h1>
-        </div>
+    <div className="min-h-screen bg-background">
+      {/* App Bar */}
+      <div className="bg-background border-b border-border px-6 py-4">
+        <h1 className="text-xl font-semibold text-foreground">Bankly Login</h1>
+      </div>
 
-        {/* Login Form */}
-        <div className="space-y-6">
+      {/* Body */}
+      <div className="p-4">
+        <div className="space-y-4">
+          {/* Logo */}
+          <div className="text-center mb-8">
+            <img 
+              src={banklyIcon} 
+              alt="Bankly" 
+              className="w-16 h-16 mx-auto mb-3 rounded-xl shadow-lg"
+            />
+          </div>
+
+          {/* Email Field */}
           <div className="space-y-2">
             <Label htmlFor="email" className="text-foreground font-medium">
               Email
@@ -38,11 +99,19 @@ const Login = () => {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="h-14 rounded-2xl border-2 border-input bg-secondary/50 text-foreground placeholder:text-muted-foreground focus:border-primary focus:bg-background"
-              placeholder="Enter your email"
+              className={`h-12 rounded-lg border-2 ${
+                errors.email 
+                  ? "border-destructive focus:border-destructive" 
+                  : "border-input focus:border-primary"
+              }`}
+              placeholder=""
             />
+            {errors.email && (
+              <p className="text-sm text-destructive">{errors.email}</p>
+            )}
           </div>
 
+          {/* Password Field */}
           <div className="space-y-2">
             <Label htmlFor="password" className="text-foreground font-medium">
               Password
@@ -52,34 +121,38 @@ const Login = () => {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="h-14 rounded-2xl border-2 border-input bg-secondary/50 text-foreground placeholder:text-muted-foreground focus:border-primary focus:bg-background"
-              placeholder="Enter your password"
+              className={`h-12 rounded-lg border-2 ${
+                errors.password 
+                  ? "border-destructive focus:border-destructive" 
+                  : "border-input focus:border-primary"
+              }`}
+              placeholder=""
             />
+            {errors.password && (
+              <p className="text-sm text-destructive">{errors.password}</p>
+            )}
           </div>
 
-          <div className="text-right">
-            <a 
-              href="#" 
-              className="text-sm text-primary hover:text-primary/80 font-medium"
+          {/* Sign In Button */}
+          <div className="pt-6">
+            <Button 
+              onClick={handleSignIn}
+              disabled={isLoading}
+              className="w-full h-12 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground font-semibold"
             >
-              Forgot password?
-            </a>
+              {isLoading ? "Signing In..." : "Sign In"}
+            </Button>
           </div>
 
-          <Button 
-            onClick={handleSignIn}
-            className="w-full h-14 rounded-2xl bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-lg shadow-lg"
-          >
-            Sign in
-          </Button>
-
-          <div className="text-center">
-            <a 
-              href="#" 
-              className="text-sm text-muted-foreground hover:text-foreground"
+          {/* Create Account Button */}
+          <div className="pt-4">
+            <Button
+              variant="ghost"
+              onClick={handleCreateAccount}
+              className="w-full text-primary hover:text-primary/80 hover:bg-secondary"
             >
-              Don't have an account? <span className="text-primary font-medium">Create account</span>
-            </a>
+              Create Account
+            </Button>
           </div>
         </div>
       </div>
