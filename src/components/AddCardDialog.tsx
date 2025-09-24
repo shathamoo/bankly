@@ -216,8 +216,8 @@ export const AddCardDialog = ({
 
   const DialogTriggerComponent = controlledOpen !== undefined ? null : (
     <DialogTrigger asChild>
-      <Button className="fixed bottom-36 right-6 h-14 w-14 rounded-full shadow-lg">
-        <CreditCard className="h-6 w-6" />
+      <Button className="fixed bottom-36 right-6 h-14 w-14 rounded-full shadow-lg z-50 bg-primary hover:bg-primary/90">
+        <CreditCard className="h-6 w-6 text-primary-foreground" />
       </Button>
     </DialogTrigger>
   );
