@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { BottomNav } from "@/components/BottomNav";
 import { TransactionItem } from "@/components/TransactionItem";
+import { BankFilterChips } from "@/components/BankFilterChips";
 
 const Transactions = () => {
   const [selectedFilter, setSelectedFilter] = useState("All");
@@ -74,22 +75,10 @@ const Transactions = () => {
 
       {/* Filter Chips */}
       <div className="px-6 py-4">
-        <div className="flex gap-2 overflow-x-auto scrollbar-hide">
-          {filters.map((filter) => (
-            <Badge
-              key={filter}
-              variant={selectedFilter === filter ? "default" : "secondary"}
-              className={`px-4 py-2 rounded-full whitespace-nowrap cursor-pointer transition-colors ${
-                selectedFilter === filter
-                  ? "bg-primary text-primary-foreground hover:bg-primary/90"
-                  : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
-              }`}
-              onClick={() => setSelectedFilter(filter)}
-            >
-              {filter}
-            </Badge>
-          ))}
-        </div>
+        <BankFilterChips 
+          selected={selectedFilter} 
+          onSelect={setSelectedFilter}
+        />
       </div>
 
       {/* Transactions List */}
