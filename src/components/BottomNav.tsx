@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import { CreditCard, BarChart3, Receipt, Wallet } from "lucide-react";
+import { CreditCard, BarChart3, Receipt, Wallet, ArrowLeftRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface BottomNavProps {
@@ -18,6 +18,12 @@ export const BottomNav = ({ activeTab }: BottomNavProps) => {
       path: "/dashboard",
     },
     {
+      id: "cards",
+      label: "Cards",
+      icon: CreditCard,
+      path: "/cards",
+    },
+    {
       id: "transactions", 
       label: "Transactions",
       icon: Receipt,
@@ -26,8 +32,14 @@ export const BottomNav = ({ activeTab }: BottomNavProps) => {
     {
       id: "transfer",
       label: "Transfer",
-      icon: CreditCard,
+      icon: ArrowLeftRight,
       path: "/transfer",
+    },
+    {
+      id: "insights",
+      label: "Insights", 
+      icon: BarChart3,
+      path: "/insights",
     },
   ];
 
