@@ -47,12 +47,104 @@ export type Database = {
         }
         Relationships: []
       }
+      cards: {
+        Row: {
+          account_id: string | null
+          bank_name: string
+          card_holder_name: string
+          card_number: string
+          created_at: string
+          cvv: string
+          expiry_month: number
+          expiry_year: number
+          id: string
+          is_active: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          account_id?: string | null
+          bank_name: string
+          card_holder_name: string
+          card_number: string
+          created_at?: string
+          cvv: string
+          expiry_month: number
+          expiry_year: number
+          id?: string
+          is_active?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          account_id?: string | null
+          bank_name?: string
+          card_holder_name?: string
+          card_number?: string
+          created_at?: string
+          cvv?: string
+          expiry_month?: number
+          expiry_year?: number
+          id?: string
+          is_active?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cards_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      otp_verifications: {
+        Row: {
+          created_at: string
+          email: string
+          expires_at: string
+          id: string
+          is_verified: boolean
+          metadata: Json | null
+          otp_code: string
+          purpose: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          expires_at: string
+          id?: string
+          is_verified?: boolean
+          metadata?: Json | null
+          otp_code: string
+          purpose: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          expires_at?: string
+          id?: string
+          is_verified?: boolean
+          metadata?: Json | null
+          otp_code?: string
+          purpose?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      cleanup_expired_otps: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
