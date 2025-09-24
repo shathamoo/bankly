@@ -1,46 +1,102 @@
-import { useState } from "react";
-import { Menu, CreditCard, BarChart3, Receipt } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { BottomNav } from "@/components/BottomNav";
 import { AccountCard } from "@/components/AccountCard"; 
 import { SideDrawer } from "@/components/SideDrawer";
+import { AddAccountDialog } from "@/components/AddAccountDialog";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 import banklyIcon from "@/assets/bankly-icon.png";
 import arabBankLogo from "@/assets/arab-bank-logo.png";
 import etihadBankLogo from "@/assets/etihad-bank-logo.png";
 import safwaBankLogo from "@/assets/safwa-bank-logo.png";
 
+interface Account {
+  id: string;
+  bank_name: string;
+  balance: number;
+  currency: string;
+  logo_url?: string;
+}
+
 const Dashboard = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [accounts, setAccounts] = useState<Account[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
 
-  const accounts = [
-    {
-      id: 1,
-      bankName: "Arab Bank",
-      balance: "12,700",
-      currency: "JOD",
-      logo: arabBankLogo,
-    },
-    {
-      id: 2,
-      bankName: "Etihad Bank", 
-      balance: "8,450",
-      currency: "JOD",
-      logo: etihadBankLogo,
-    },
-    {
-      id: 3,
-      bankName: "Safwa Islamic",
-      balance: "5,980", 
-      currency: "JOD",
-      logo: safwaBankLogo,
-    },
-  ];
+  // Default logos mapping
+  const getLogoForBank = (bankName: string) => {
+    const name = bankName.toLowerCase();
+    if (name.includes('arab')) return arabBankLogo;
+    if (name.includes('etihad')) return etihadBankLogo;  
+    if (name.includes('safwa')) return safwaBankLogo;
+    return banklyIcon;
+  };
 
-  const totalBalance = accounts.reduce(
-    (sum, account) => sum + parseFloat(account.balance.replace(",", "")), 
-    0
-  );
+  const fetchAccounts = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        // Show default demo accounts if not logged in
+        setAccounts([
+          {
+            id: "demo-1",
+            bank_name: "Arab Bank",
+            balance: 12700,
+            currency: "JOD",
+            logo_url: arabBankLogo,
+          },
+          {
+            id: "demo-2", 
+            bank_name: "Etihad Bank",
+            balance: 8450,
+            currency: "JOD",
+            logo_url: etihadBankLogo,
+          },
+          {
+            id: "demo-3",
+            bank_name: "Safwa Islamic", 
+            balance: 5980,
+            currency: "JOD",
+            logo_url: safwaBankLogo,
+          },
+        ]);
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from("accounts")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        console.error("Error fetching accounts:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load accounts",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      setAccounts(data || []);
+    } catch (error) {
+      console.error("Error fetching accounts:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchAccounts();
+  }, []);
+
+  const totalBalance = accounts.reduce((sum, account) => sum + account.balance, 0);
 
   return (
     <div className="min-h-screen bg-secondary/30">
@@ -75,9 +131,28 @@ const Dashboard = () => {
       <div className="p-6 pb-24 space-y-6">
         {/* Account Cards */}
         <div className="space-y-4">
-          {accounts.map((account) => (
-            <AccountCard key={account.id} account={account} />
-          ))}
+          {isLoading ? (
+            <div className="text-center py-8">
+              <p className="text-muted-foreground">Loading accounts...</p>
+            </div>
+          ) : accounts.length === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-muted-foreground">No accounts yet. Add your first account!</p>
+            </div>
+          ) : (
+            accounts.map((account) => (
+              <AccountCard 
+                key={account.id} 
+                account={{
+                  id: parseInt(account.id) || 0,
+                  bankName: account.bank_name,
+                  balance: account.balance.toLocaleString(),
+                  currency: account.currency,
+                  logo: account.logo_url || getLogoForBank(account.bank_name),
+                }}
+              />
+            ))
+          )}
         </div>
 
         {/* Total Balance Card */}
@@ -91,6 +166,7 @@ const Dashboard = () => {
         </div>
       </div>
 
+      <AddAccountDialog onAccountAdded={fetchAccounts} />
       <BottomNav activeTab="accounts" />
     </div>
   );
