@@ -1,20 +1,49 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { User, Settings, HelpCircle, LogOut } from "lucide-react";
+import { User, Settings, HelpCircle, LogOut, Plus, CreditCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { AddAccountDialog } from "@/components/AddAccountDialog";
 import banklyIcon from "@/assets/bankly-icon.png";
 
 interface SideDrawerProps {
   onClose: () => void;
+  onAccountAdded?: () => void;
 }
 
-export const SideDrawer = ({ onClose }: SideDrawerProps) => {
+export const SideDrawer = ({ onClose, onAccountAdded }: SideDrawerProps) => {
   const navigate = useNavigate();
+  const [showAddDialog, setShowAddDialog] = useState(false);
 
   const handleLogout = () => {
     onClose();
     navigate("/");
   };
+
+  const handleAddAccount = () => {
+    setShowAddDialog(true);
+  };
+
+  const handleAccountAdded = () => {
+    onAccountAdded?.();
+    onClose();
+  };
+
+  const accountMenuItems = [
+    {
+      icon: Plus,
+      label: "Add Account",
+      onClick: handleAddAccount,
+    },
+    {
+      icon: CreditCard,
+      label: "Manage Accounts", 
+      onClick: () => {
+        onClose();
+        navigate("/dashboard");
+      },
+    },
+  ];
 
   const menuItems = [
     {
@@ -57,22 +86,53 @@ export const SideDrawer = ({ onClose }: SideDrawerProps) => {
       </div>
 
       {/* Menu Items */}
-      <div className="flex-1 p-6">
-        <div className="space-y-2">
-          {menuItems.map((item, index) => {
-            const Icon = item.icon;
-            return (
-              <Button
-                key={index}
-                variant="ghost"
-                className="w-full justify-start gap-3 h-12 text-left hover:bg-secondary"
-                onClick={item.onClick}
-              >
-                <Icon className="h-5 w-5 text-muted-foreground" />
-                <span className="font-medium">{item.label}</span>
-              </Button>
-            );
-          })}
+      <div className="flex-1 p-6 space-y-6">
+        {/* Account Management */}
+        <div>
+          <h3 className="text-sm font-semibold text-muted-foreground mb-3 px-3">
+            Account Management
+          </h3>
+          <div className="space-y-2">
+            {accountMenuItems.map((item, index) => {
+              const Icon = item.icon;
+              return (
+                <Button
+                  key={index}
+                  variant="ghost"
+                  className="w-full justify-start gap-3 h-12 text-left hover:bg-secondary"
+                  onClick={item.onClick}
+                >
+                  <Icon className="h-5 w-5 text-muted-foreground" />
+                  <span className="font-medium">{item.label}</span>
+                </Button>
+              );
+            })}
+          </div>
+        </div>
+
+        <Separator />
+
+        {/* General Menu */}
+        <div>
+          <h3 className="text-sm font-semibold text-muted-foreground mb-3 px-3">
+            General
+          </h3>
+          <div className="space-y-2">
+            {menuItems.map((item, index) => {
+              const Icon = item.icon;
+              return (
+                <Button
+                  key={index}
+                  variant="ghost"
+                  className="w-full justify-start gap-3 h-12 text-left hover:bg-secondary"
+                  onClick={item.onClick}
+                >
+                  <Icon className="h-5 w-5 text-muted-foreground" />
+                  <span className="font-medium">{item.label}</span>
+                </Button>
+              );
+            })}
+          </div>
         </div>
       </div>
 
@@ -87,6 +147,13 @@ export const SideDrawer = ({ onClose }: SideDrawerProps) => {
           <span className="font-medium">Logout</span>
         </Button>
       </div>
+
+      {/* Add Account Dialog */}
+      <AddAccountDialog 
+        isOpen={showAddDialog}
+        onOpenChange={setShowAddDialog}
+        onAccountAdded={handleAccountAdded}
+      />
     </div>
   );
 };

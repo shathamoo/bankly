@@ -110,7 +110,10 @@ const Dashboard = () => {
               </Button>
             </SheetTrigger>
             <SheetContent side="left" className="p-0 w-80">
-              <SideDrawer onClose={() => setIsDrawerOpen(false)} />
+              <SideDrawer 
+                onClose={() => setIsDrawerOpen(false)} 
+                onAccountAdded={fetchAccounts}
+              />
             </SheetContent>
           </Sheet>
 

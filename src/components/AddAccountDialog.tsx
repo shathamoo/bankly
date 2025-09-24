@@ -15,10 +15,19 @@ import { useToast } from "@/hooks/use-toast";
 
 interface AddAccountDialogProps {
   onAccountAdded: () => void;
+  isOpen?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
-export const AddAccountDialog = ({ onAccountAdded }: AddAccountDialogProps) => {
-  const [isOpen, setIsOpen] = useState(false);
+export const AddAccountDialog = ({ 
+  onAccountAdded, 
+  isOpen: controlledOpen, 
+  onOpenChange: controlledOnOpenChange 
+}: AddAccountDialogProps) => {
+  const [internalOpen, setInternalOpen] = useState(false);
+  
+  const isOpen = controlledOpen !== undefined ? controlledOpen : internalOpen;
+  const setIsOpen = controlledOnOpenChange || setInternalOpen;
   const [bankName, setBankName] = useState("");
   const [balance, setBalance] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -100,13 +109,17 @@ export const AddAccountDialog = ({ onAccountAdded }: AddAccountDialogProps) => {
     }
   };
 
+  const DialogTriggerComponent = controlledOpen !== undefined ? null : (
+    <DialogTrigger asChild>
+      <Button className="fixed bottom-20 right-6 h-14 w-14 rounded-full shadow-lg">
+        <Plus className="h-6 w-6" />
+      </Button>
+    </DialogTrigger>
+  );
+
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button className="fixed bottom-20 right-6 h-14 w-14 rounded-full shadow-lg">
-          <Plus className="h-6 w-6" />
-        </Button>
-      </DialogTrigger>
+      {DialogTriggerComponent}
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Add New Bank Account</DialogTitle>
