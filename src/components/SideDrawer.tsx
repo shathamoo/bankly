@@ -43,6 +43,14 @@ export const SideDrawer = ({ onClose, onAccountAdded }: SideDrawerProps) => {
         navigate("/dashboard");
       },
     },
+    {
+      icon: CreditCard,
+      label: "My Cards",
+      onClick: () => {
+        onClose();
+        navigate("/cards");
+      },
+    },
   ];
 
   const menuItems = [
