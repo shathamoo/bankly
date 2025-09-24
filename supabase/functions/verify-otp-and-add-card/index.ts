@@ -114,7 +114,6 @@ const handler = async (req: Request): Promise<Response> => {
         .from("cards")
         .insert({
           user_id: user.id,
-          account_id: cardDetails.accountId,
           card_number: maskedCardNumber,
           card_holder_name: cardDetails.cardHolderName,
           bank_name: cardDetails.bankName,

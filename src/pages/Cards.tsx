@@ -214,8 +214,7 @@ const Cards = () => {
       </div>
 
       <AddCardDialog 
-        accounts={accounts}
-        onCardAdded={fetchCards} 
+        onCardAdded={fetchCards}
       />
       <BottomNav activeTab="cards" />
     </div>

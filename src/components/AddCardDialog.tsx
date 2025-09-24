@@ -15,7 +15,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
 interface AddCardDialogProps {
-  accounts: Array<{ id: string; bank_name: string }>;
   onCardAdded: () => void;
   isOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
@@ -28,11 +27,9 @@ interface CardDetails {
   expiryMonth: number;
   expiryYear: number;
   cvv: string;
-  accountId: string;
 }
 
 export const AddCardDialog = ({ 
-  accounts,
   onCardAdded, 
   isOpen: controlledOpen, 
   onOpenChange: controlledOnOpenChange 
@@ -52,7 +49,6 @@ export const AddCardDialog = ({
     expiryMonth: 1,
     expiryYear: new Date().getFullYear(),
     cvv: "",
-    accountId: "",
   });
   
   const { toast } = useToast();
@@ -65,7 +61,7 @@ export const AddCardDialog = ({
     e.preventDefault();
     
     if (!cardDetails.cardNumber || !cardDetails.cardHolderName || !cardDetails.bankName || 
-        !cardDetails.cvv || !cardDetails.accountId || !email) {
+        !cardDetails.cvv || !email) {
       toast({
         title: "Error",
         description: "Please fill in all fields",
@@ -191,7 +187,6 @@ export const AddCardDialog = ({
         expiryMonth: 1,
         expiryYear: currentYear,
         cvv: "",
-        accountId: "",
       });
       setEmail("");
       setOtpCode("");
@@ -246,25 +241,6 @@ export const AddCardDialog = ({
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="accountId">Link to Account</Label>
-              <Select 
-                value={cardDetails.accountId} 
-                onValueChange={(value) => setCardDetails({...cardDetails, accountId: value})}
-                disabled={isLoading}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select an account" />
-                </SelectTrigger>
-                <SelectContent>
-                  {accounts.map((account) => (
-                    <SelectItem key={account.id} value={account.id}>
-                      {account.bank_name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
 
             <div className="space-y-2">
               <Label htmlFor="cardNumber">Card Number</Label>
