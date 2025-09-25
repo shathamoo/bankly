@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { User, Settings, HelpCircle, LogOut, Plus, CreditCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { AddAccountDialog } from "@/components/AddAccountDialog";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 import banklyIcon from "@/assets/bankly-icon.png";
 
 interface SideDrawerProps {
@@ -13,11 +15,46 @@ interface SideDrawerProps {
 
 export const SideDrawer = ({ onClose, onAccountAdded }: SideDrawerProps) => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [showAddDialog, setShowAddDialog] = useState(false);
+  const [userDisplayName, setUserDisplayName] = useState("User");
 
-  const handleLogout = () => {
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const { data: profile } = await supabase
+            .from("profiles")
+            .select("display_name")
+            .eq("id", user.id)
+            .single();
+          
+          setUserDisplayName(profile?.display_name || user.email || "User");
+        }
+      } catch (error) {
+        console.error("Error fetching user profile:", error);
+      }
+    };
+
+    fetchUserProfile();
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut();
+      toast({
+        title: "Logged out",
+        description: "You have been successfully logged out.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to log out. Please try again.",
+        variant: "destructive",
+      });
+    }
     onClose();
-    navigate("/");
   };
 
   const handleAddAccount = () => {
@@ -88,7 +125,7 @@ export const SideDrawer = ({ onClose, onAccountAdded }: SideDrawerProps) => {
           <img src={banklyIcon} alt="Bankly" className="w-10 h-10 rounded-xl" />
           <div>
             <h2 className="text-xl font-bold text-primary">Bankly</h2>
-            <p className="text-sm text-muted-foreground">Shatha Abuhammour</p>
+            <p className="text-sm text-muted-foreground">{userDisplayName}</p>
           </div>
         </div>
       </div>

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import banklyIcon from "@/assets/bankly-icon.png";
 
 // Validation schema
@@ -47,8 +48,21 @@ const Login = () => {
         return;
       }
 
-      // TODO: Implement actual sign in logic here
-      // For now, just navigate to dashboard
+      // Sign in with Supabase
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        toast({
+          title: "Sign in failed",
+          description: error.message,
+          variant: "destructive",
+        });
+        return;
+      }
+
       toast({
         title: "Sign in successful",
         description: "Welcome to Bankly!",
@@ -58,7 +72,7 @@ const Login = () => {
     } catch (error) {
       toast({
         title: "Sign in failed",
-        description: "Please check your credentials and try again.",
+        description: "An unexpected error occurred. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -67,7 +81,7 @@ const Login = () => {
   };
 
   const handleCreateAccount = () => {
-    navigate("/create-account");
+    navigate("/signup");
   };
 
   return (

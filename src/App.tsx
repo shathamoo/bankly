@@ -2,7 +2,11 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import type { Session } from "@supabase/supabase-js";
 import Login from "./pages/Login";
+import SignUp from "./pages/SignUp";
 import CreateAccount from "./pages/CreateAccount";
 import Dashboard from "./pages/Dashboard";
 import Cards from "./pages/Cards";
@@ -13,24 +17,65 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <Toaster />
-    <Sonner />
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/create-account" element={<CreateAccount />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/cards" element={<Cards />} />
-        <Route path="/transactions" element={<Transactions />} />
-        <Route path="/transfer" element={<Transfer />} />
-        <Route path="/insights" element={<Insights />} />
-        {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-    </BrowserRouter>
-  </QueryClientProvider>
-);
+const App = () => {
+  const [session, setSession] = useState<Session | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setLoading(false);
+    });
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setSession(session);
+        setLoading(false);
+      }
+    );
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <p className="text-muted-foreground">Loading...</p>
+      </div>
+    );
+  }
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <Toaster />
+      <Sonner />
+      <BrowserRouter>
+        <Routes>
+          {!session ? (
+            <>
+              <Route path="/" element={<Login />} />
+              <Route path="/signup" element={<SignUp />} />
+              <Route path="*" element={<Login />} />
+            </>
+          ) : (
+            <>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/create-account" element={<CreateAccount />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/cards" element={<Cards />} />
+              <Route path="/transactions" element={<Transactions />} />
+              <Route path="/transfer" element={<Transfer />} />
+              <Route path="/insights" element={<Insights />} />
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </>
+          )}
+        </Routes>
+      </BrowserRouter>
+    </QueryClientProvider>
+  );
+};
 
 export default App;

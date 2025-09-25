@@ -41,8 +41,6 @@ const Dashboard = () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       
-      setUser(user);
-      
       if (!user) {
         // Show default demo accounts if not logged in
         setAccounts([
@@ -70,6 +68,18 @@ const Dashboard = () => {
         ]);
         return;
       }
+
+      // Fetch user profile for display name
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("display_name")
+        .eq("id", user.id)
+        .single();
+
+      setUser({ 
+        ...user, 
+        display_name: profile?.display_name || user.email || 'User' 
+      });
 
       const { data, error } = await supabase
         .from("accounts")
@@ -128,7 +138,7 @@ const Dashboard = () => {
 
         <div className="mt-4">
           <h2 className="text-lg font-semibold text-primary">
-            Hello, {user?.user_metadata?.display_name || user?.email || 'User'}
+            Hello, {user?.display_name || 'User'}
           </h2>
         </div>
       </div>
