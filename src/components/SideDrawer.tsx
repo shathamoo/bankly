@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { User, Settings, HelpCircle, LogOut, Plus, CreditCard } from "lucide-react";
+import { User, Settings, HelpCircle, LogOut, Plus, CreditCard, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AddAccountDialog } from "@/components/AddAccountDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -17,6 +18,7 @@ export const SideDrawer = ({ onClose, onAccountAdded }: SideDrawerProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [showAddDialog, setShowAddDialog] = useState(false);
+  const [showHelpDialog, setShowHelpDialog] = useState(false);
   const [userDisplayName, setUserDisplayName] = useState("User");
 
   useEffect(() => {
@@ -111,8 +113,7 @@ export const SideDrawer = ({ onClose, onAccountAdded }: SideDrawerProps) => {
       icon: HelpCircle,
       label: "Help",
       onClick: () => {
-        onClose();
-        // Navigate to help page when implemented
+        setShowHelpDialog(true);
       },
     },
   ];
@@ -199,6 +200,24 @@ export const SideDrawer = ({ onClose, onAccountAdded }: SideDrawerProps) => {
         onOpenChange={setShowAddDialog}
         onAccountAdded={handleAccountAdded}
       />
+
+      {/* Help Dialog */}
+      <Dialog open={showHelpDialog} onOpenChange={setShowHelpDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Help & Support</DialogTitle>
+          </DialogHeader>
+          <div className="flex items-center gap-3 p-4">
+            <Phone className="h-5 w-5 text-primary" />
+            <a 
+              href="tel:+962791234567" 
+              className="text-lg font-medium text-primary hover:underline"
+            >
+              Call support at +962-79-1234567
+            </a>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
