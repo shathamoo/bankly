@@ -96,7 +96,7 @@ export const SideDrawer = ({ onClose, onAccountAdded }: SideDrawerProps) => {
       label: "Profile",
       onClick: () => {
         onClose();
-        // Navigate to profile page when implemented
+        navigate("/dashboard");
       },
     },
     {
