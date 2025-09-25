@@ -8,6 +8,7 @@ const Insights = () => {
   const [transferData, setTransferData] = useState({ amount: 0, count: 0, percentage: 0 });
   const [externalTransferData, setExternalTransferData] = useState({ amount: 0, count: 0, percentage: 0 });
   const [totalSpending, setTotalSpending] = useState(0);
+  const [aiTips, setAiTips] = useState<string[]>([]);
 
   // Fetch transfer data for current month
   const fetchTransferData = async () => {
@@ -80,6 +81,27 @@ const Insights = () => {
     }
   };
 
+  // Function to get AI-generated tips
+  const fetchAiTips = async (categories: any[]) => {
+    try {
+      const { data, error } = await supabase.functions.invoke('gemini-tips', {
+        body: { categories }
+      });
+      
+      if (error) {
+        console.error('Error fetching AI tips:', error);
+        return;
+      }
+      
+      if (data?.tips && Array.isArray(data.tips)) {
+        setAiTips(data.tips);
+      }
+    } catch (error) {
+      console.error('Error calling AI tips function:', error);
+      // Fail silently - don't break the page
+    }
+  };
+
   useEffect(() => {
     fetchTransferData();
   }, []);
@@ -106,6 +128,13 @@ const Insights = () => {
     ...(transferData.amount > 0 ? [{ category: "Internal Transfers", amount: transferData.amount, color: "#10b981" }] : []),
     ...(externalTransferData.amount > 0 ? [{ category: "External Transfers", amount: externalTransferData.amount, color: "#06b6d4" }] : [])
   ];
+
+  // Fetch AI tips when categories are computed
+  useEffect(() => {
+    if (topCategories.length > 0) {
+      fetchAiTips(topCategories);
+    }
+  }, [transferData.amount, externalTransferData.amount]);
 
   const tips = [
     "Set up automatic savings of 200 JOD monthly to reach your goals faster.",
@@ -196,6 +225,22 @@ const Insights = () => {
             ))}
           </div>
         </InsightCard>
+
+        {/* AI Smart Tips */}
+        {aiTips.length > 0 && (
+          <InsightCard title="AI Smart Tips">
+            <div className="space-y-3">
+              {aiTips.map((tip, index) => (
+                <div key={index} className="flex gap-3">
+                  <div className="w-2 h-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full mt-2 flex-shrink-0" />
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    {tip}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </InsightCard>
+        )}
       </div>
 
       <BottomNav activeTab="insights" />
