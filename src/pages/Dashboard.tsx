@@ -25,6 +25,7 @@ const Dashboard = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [user, setUser] = useState<any>(null);
   const { toast } = useToast();
 
   // Default logos mapping
@@ -39,6 +40,8 @@ const Dashboard = () => {
   const fetchAccounts = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
+      
+      setUser(user);
       
       if (!user) {
         // Show default demo accounts if not logged in
@@ -125,7 +128,7 @@ const Dashboard = () => {
 
         <div className="mt-4">
           <h2 className="text-lg font-semibold text-primary">
-            Hello, Shatha Abuhammour
+            Hello, {user?.user_metadata?.display_name || user?.email || 'User'}
           </h2>
         </div>
       </div>
