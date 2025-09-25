@@ -20,8 +20,35 @@ interface TransferTransaction {
 const Transactions = () => {
   const [selectedFilter, setSelectedFilter] = useState("All");
   const [transferTransactions, setTransferTransactions] = useState<TransferTransaction[]>([]);
+  const [userAccounts, setUserAccounts] = useState<{bank_name: string}[]>([]);
 
-  const filters = ["All", "Arab Bank", "Etihad", "Safwa"];
+  // Dynamic filters based on user's accounts
+  const filters = ["All", ...Array.from(new Set(userAccounts.map(account => account.bank_name)))];
+
+  // Fetch user's accounts
+  const fetchUserAccounts = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from("accounts")
+        .select("bank_name")
+        .eq("user_id", user.id);
+
+      if (error) {
+        console.error("Error fetching user accounts:", error);
+        return;
+      }
+
+      setUserAccounts(data || []);
+    } catch (error) {
+      console.error("Error in fetchUserAccounts:", error);
+    }
+  };
 
 
   // Fetch transfer transactions from database
@@ -68,6 +95,7 @@ const Transactions = () => {
 
   useEffect(() => {
     fetchTransferTransactions();
+    fetchUserAccounts();
   }, []);
 
   // Convert transfer transactions to display format
@@ -117,6 +145,7 @@ const Transactions = () => {
         <BankFilterChips 
           selected={selectedFilter} 
           onSelect={setSelectedFilter}
+          filters={filters}
         />
       </div>
 

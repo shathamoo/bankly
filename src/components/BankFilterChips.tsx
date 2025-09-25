@@ -1,14 +1,13 @@
 interface BankFilterChipsProps {
   selected: string;
   onSelect: (bank: string) => void;
+  filters: string[];
 }
 
-export const BankFilterChips = ({ selected, onSelect }: BankFilterChipsProps) => {
-  const banks = ['All', 'Arab Bank', 'Etihad', 'Safwa'];
-
+export const BankFilterChips = ({ selected, onSelect, filters }: BankFilterChipsProps) => {
   return (
     <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-2">
-      {banks.map((bank) => (
+      {filters.map((bank) => (
         <button
           key={bank}
           onClick={() => onSelect(bank)}
