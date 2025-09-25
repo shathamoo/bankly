@@ -23,69 +23,6 @@ const Transactions = () => {
 
   const filters = ["All", "Arab Bank", "Etihad", "Safwa"];
 
-  // Static transaction data for demo purposes
-  const staticTransactions = [
-    {
-      id: "static-1",
-      merchant: "Starbucks Abdali",
-      date: "2025-09-10",
-      amount: -8.75,
-      currency: "JOD",
-      category: "Food & Coffee",
-      categoryColor: "bg-orange-500",
-      bank: "Arab Bank",
-    },
-    {
-      id: "static-2",
-      merchant: "JEPCO",
-      date: "2025-09-12", 
-      amount: -35.20,
-      currency: "JOD",
-      category: "Bills",
-      categoryColor: "bg-blue-500",
-      bank: "Etihad",
-    },
-    {
-      id: "static-3",
-      merchant: "Salary",
-      date: "2025-09-01",
-      amount: 900.00,
-      currency: "JOD", 
-      category: "Salary",
-      categoryColor: "bg-green-500",
-      bank: "Arab Bank",
-    },
-    {
-      id: "static-4",
-      merchant: "Carrefour",
-      date: "2025-09-08",
-      amount: -45.60,
-      currency: "JOD",
-      category: "Shopping",
-      categoryColor: "bg-purple-500",
-      bank: "Safwa",
-    },
-    {
-      id: "static-5",
-      merchant: "Shell Station",
-      date: "2025-09-07",
-      amount: -25.00,
-      currency: "JOD",
-      category: "Transport",
-      categoryColor: "bg-red-500",
-      bank: "Etihad",
-    },
-    {
-      id: "static-6",
-      merchant: "Orange Telecom",
-      date: "2025-09-05",
-      amount: -15.90,
-      currency: "JOD",
-      category: "Bills", 
-      categoryColor: "bg-blue-500",
-      bank: "Arab Bank",
-    },
-  ];
 
   // Fetch transfer transactions from database
   const fetchTransferTransactions = async () => {
@@ -159,8 +96,8 @@ const Transactions = () => {
     }
   ]);
 
-  // Combine static transactions with transfer transactions
-  const allTransactions = [...staticTransactions, ...transferTransactionsForDisplay]
+  // Use only transfer transactions from user's accounts
+  const allTransactions = transferTransactionsForDisplay
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   // Filter transactions based on selected filter
