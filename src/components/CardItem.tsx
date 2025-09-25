@@ -9,12 +9,14 @@ import {
 
 interface Card {
   id: string;
-  card_number: string;
+  masked_card_number: string;
   card_holder_name: string;
   bank_name: string;
   expiry_month: number;
   expiry_year: number;
   is_active: boolean;
+  card_token: string;
+  last_four_digits: string;
 }
 
 interface CardItemProps {
@@ -25,9 +27,9 @@ interface CardItemProps {
 }
 
 export const CardItem = ({ card, onEdit, onDelete, onToggleStatus }: CardItemProps) => {
-  const getCardTypeColor = (cardNumber: string) => {
-    // Simple card type detection based on first digit
-    const firstDigit = cardNumber.charAt(0);
+  const getCardTypeColor = (lastFourDigits: string) => {
+    // Simple card type detection based on first digit of last four
+    const firstDigit = lastFourDigits.charAt(0);
     switch (firstDigit) {
       case '4': return 'bg-gradient-to-r from-blue-500 to-blue-600'; // Visa
       case '5': return 'bg-gradient-to-r from-red-500 to-red-600'; // Mastercard
@@ -44,7 +46,7 @@ export const CardItem = ({ card, onEdit, onDelete, onToggleStatus }: CardItemPro
     }`}>
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3">
-          <div className={`w-12 h-8 rounded-lg flex items-center justify-center ${getCardTypeColor(card.card_number)}`}>
+          <div className={`w-12 h-8 rounded-lg flex items-center justify-center ${getCardTypeColor(card.last_four_digits)}`}>
             <CreditCard className="h-5 w-5 text-white" />
           </div>
           <div>
@@ -52,7 +54,7 @@ export const CardItem = ({ card, onEdit, onDelete, onToggleStatus }: CardItemPro
               {card.bank_name}
             </h3>
             <p className="text-sm text-muted-foreground">
-              {card.card_number}
+              {card.masked_card_number}
             </p>
           </div>
         </div>

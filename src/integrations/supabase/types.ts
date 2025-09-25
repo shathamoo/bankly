@@ -79,13 +79,14 @@ export type Database = {
           account_id: string | null
           bank_name: string
           card_holder_name: string
-          card_number: string
+          card_token: string
           created_at: string
-          cvv: string
           expiry_month: number
           expiry_year: number
           id: string
           is_active: boolean
+          last_four_digits: string
+          masked_card_number: string
           updated_at: string
           user_id: string
         }
@@ -93,13 +94,14 @@ export type Database = {
           account_id?: string | null
           bank_name: string
           card_holder_name: string
-          card_number: string
+          card_token: string
           created_at?: string
-          cvv: string
           expiry_month: number
           expiry_year: number
           id?: string
           is_active?: boolean
+          last_four_digits: string
+          masked_card_number: string
           updated_at?: string
           user_id: string
         }
@@ -107,13 +109,14 @@ export type Database = {
           account_id?: string | null
           bank_name?: string
           card_holder_name?: string
-          card_number?: string
+          card_token?: string
           created_at?: string
-          cvv?: string
           expiry_month?: number
           expiry_year?: number
           id?: string
           is_active?: boolean
+          last_four_digits?: string
+          masked_card_number?: string
           updated_at?: string
           user_id?: string
         }

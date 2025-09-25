@@ -13,13 +13,15 @@ import banklyIcon from "@/assets/bankly-icon.png";
 
 interface Card {
   id: string;
-  card_number: string;
+  masked_card_number: string;
   card_holder_name: string;
   bank_name: string;
   expiry_month: number;
   expiry_year: number;
   is_active: boolean;
   account_id: string;
+  card_token: string;
+  last_four_digits: string;
 }
 
 interface Account {
